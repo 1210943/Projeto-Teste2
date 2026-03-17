@@ -844,6 +844,25 @@ tr:hover td{background:var(--bg3)}
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  onSnapshot,
+  addDoc,
+  collection
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
@@ -852,21 +871,28 @@ from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 function iniciarSincronizacao(){
 
-const ref = doc(db,"sistema","estado");
+const ref = doc(db, "sistema", "estado");
 
-onSnapshot(ref,(snapshot)=>{
+function iniciarFirebaseSync() {
 
-if(snapshot.exists()){
+  const ref = doc(db, "sistema", "estado");
 
-S = snapshot.data();
+  onSnapshot(ref, (snapshot) => {
+    if (snapshot.exists()) {
 
-render();
+      const data = snapshot.data();
+
+      // 🔥 proteção contra loop e render duplicado
+      if (JSON.stringify(S) !== JSON.stringify(data)) {
+        S = data;
+        render();
+      }
+
+    }
+  });
 
 }
 
-});
-
-}
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqzCaIia2H_7v23A-QGmAL-S_mslZyeLg",
@@ -882,8 +908,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 import { signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-
-signOut(auth);
 
 window.login = function(){
 
@@ -952,27 +976,34 @@ const DEFAULT_STATE={
   ]
 };
 
-async function saveState(){
+async function saveState() {
 
-try{
+  // 🔥 salva local (igual já fazia antes)
+  localStorage.setItem("wms_state", JSON.stringify(S));
 
-await setDoc(doc(db,"sistema","estado"),S);
-
-}catch(e){
-
-console.error("Erro ao salvar",e);
+  // 🔥 salva no Firebase
+  try {
+    const ref = doc(db, "sistema", "estado");
+    await setDoc(ref, S);
+    console.log("Salvo no Firebase");
+  } catch (e) {
+    console.error("Erro ao salvar no Firebase:", e);
+  }
 
 }
 
-}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    iniciarFirebaseSync();
+  }
+});
 
 let S;
 
 async function iniciarSistema(){
 
 const ref = doc(db,"sistema","estado");
-
-const snapshot = await getDoc(ref);
 
 if(snapshot.exists()){
 
@@ -990,6 +1021,11 @@ render();
 
 iniciarSincronizacao();
 
+}
+
+async function salvarFirebase() {
+  const ref = doc(db, "sistema", "estado");
+  await setDoc(ref, S);
 }
 
 iniciarSistema();
