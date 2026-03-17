@@ -879,34 +879,6 @@ from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, doc, setDoc, onSnapshot }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-function iniciarSincronizacao(){
-
-const ref = doc(db, "sistema", "estado");
-
-function iniciarFirebaseSync() {
-
-  const ref = doc(db, "sistema", "estado");
-
-
-onSnapshot(ref, (snapshot) => {
-  if (snapshot.exists()) {
-
-    const data = snapshot.data();
-
-    if (JSON.stringify(S) !== JSON.stringify(data)) {
-      S = data;
-      render();
-    }
-
-  } else {
-
-    // 🔥 se não existe no Firebase, cria
-    S = DEFAULT_STATE;
-    saveState();
-
-  }
-});
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqzCaIia2H_7v23A-QGmAL-S_mslZyeLg",
@@ -974,6 +946,33 @@ alert("Salvo no banco");
 
 
 <script>
+
+function iniciarFirebaseSync() {
+
+  const ref = doc(db, "sistema", "estado");
+
+  onSnapshot(ref, (snapshot) => {
+
+    if (snapshot.exists()) {
+
+      const data = snapshot.data();
+
+      if (JSON.stringify(S) !== JSON.stringify(data)) {
+        S = data;
+        render();
+      }
+
+    } else {
+
+      S = DEFAULT_STATE;
+      saveState();
+
+    }
+
+  });
+
+}
+
 const LS_KEY='wms_pro_data';
 let _chegadaId=null,_alocarId=null;
 
