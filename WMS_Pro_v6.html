@@ -4,7 +4,108 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WMS Pro</title>
+
+
+
+
 <style>
+
+#sistema{
+display:block;
+}
+
+#loginOverlay{
+
+position:fixed;
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.65);
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+z-index:9999;
+
+font-family:Arial;
+
+}
+
+#loginBox{
+
+background:white;
+
+padding:40px;
+
+border-radius:10px;
+
+width:320px;
+
+text-align:center;
+
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+
+}
+
+#loginBox h2{
+
+margin-bottom:20px;
+
+}
+
+#loginBox input{
+
+width:100%;
+
+padding:10px;
+
+margin-bottom:12px;
+
+border-radius:5px;
+
+border:1px solid #ccc;
+
+}
+
+#loginBox button{
+
+width:100%;
+
+padding:10px;
+
+background:#2c7be5;
+
+color:white;
+
+border:none;
+
+border-radius:5px;
+
+cursor:pointer;
+
+font-weight:bold;
+
+}
+
+#loginBox button:hover{
+
+background:#1a5edb;
+
+}
+
+#erroLogin{
+
+color:red;
+font-size:14px;
+
+}
+
+
+
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;min-height:100vh;color:#1a1a1a;font-size:14px}
 :root{--bg:#ffffff;--bg2:#f5f4f0;--bg3:#eeece6;--border:#e0ddd5;--border2:#c8c5bc;--text:#1a1a1a;--text2:#6b6a65;--text3:#9b9a95;--blue:#378ADD;--green:#1D9E75;--amber:#EF9F27;--red:#E24B4A;--blue-bg:#EBF4FD;--green-bg:#EAF7F2;--amber-bg:#FEF6E7;--red-bg:#FDEAEA;--radius:8px;--radius-lg:12px}
@@ -120,7 +221,37 @@ tr:hover td{background:var(--bg3)}
 @media(max-width:480px){.row-4,.row-3,.row-2{grid-template-columns:1fr}.form-row-2,.form-row-3,.form-row-4{grid-template-columns:1fr}}
 </style>
 </head>
+
+
+
 <body>
+
+
+<!-- LOGIN -->
+<div id="loginOverlay">
+  
+
+    <div id="loginBox">
+
+      <h2>Sistema da Empresa</h2>
+
+      <input id="email" type="email" placeholder="Email corporativo">
+
+      <input id="senha" type="password" placeholder="Senha">
+
+      <button onclick="login()">Entrar</button>
+
+      <p id="erroLogin"></p>
+
+    </div>
+
+
+</div>
+
+
+<!-- SISTEMA -->
+<div id="sistema">
+
 
 <div class="nav">
   <div class="nav-logo">
@@ -707,41 +838,68 @@ tr:hover td{background:var(--bg3)}
     </div>
   </div>
 </div>
-
+</div>
 
 
 <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBqzCaIia2H_7v23A-QGmAL-S_mslZyeLg",
-    authDomain: "sistema-empresa-b74b1.firebaseapp.com",
-    projectId: "sistema-empresa-b74b1",
-    storageBucket: "sistema-empresa-b74b1.firebasestorage.app",
-    messagingSenderId: "763544027635",
-    appId: "1:763544027635:web:c65f54d37f05d0034ad286"
-  };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
+const firebaseConfig = {
+  apiKey: "AIzaSyBqzCaIia2H_7v23A-QGmAL-S_mslZyeLg",
+  authDomain: "sistema-empresa-b74b1.firebaseapp.com",
+  projectId: "sistema-empresa-b74b1",
+  storageBucket: "sistema-empresa-b74b1.firebasestorage.app",
+  messagingSenderId: "763544027635",
+  appId: "1:763544027635:web:c65f54d37f05d0034ad286"
+};
 
-  onAuthStateChanged(auth, (user) => {
-  if (user) {
-    document.getElementById("sistema").style.display = "block";
-  } else {
-    window.location = "login.html";
-  }
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+import { signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+signOut(auth);
+
+window.login = function(){
+
+const email = document.getElementById("email").value;
+const senha = document.getElementById("senha").value;
+
+signInWithEmailAndPassword(auth,email,senha)
+
+.then(()=>{
+
+})
+
+.catch(()=>{
+
+document.getElementById("erroLogin").innerText="Email ou senha inválidos";
+
 });
+
+}
+
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+
+    document.getElementById("loginOverlay").style.display = "none";
+    document.getElementById("sistema").style.display = "block";
+
+  } else {
+
+    document.getElementById("loginOverlay").style.display = "flex";
+    document.getElementById("sistema").style.display = "none";
+
+  }
+
+});
+
 </script>
 
-
-<input id="email" placeholder="Email">
-<input id="senha" type="password" placeholder="Senha">
-<button onclick="login()">Entrar</button>
 
 
 <script>
@@ -2053,4 +2211,6 @@ render();
 
 </script>
 </body>
+
+
 </html>
