@@ -847,6 +847,27 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
+import { getFirestore, collection, addDoc, getDocs, doc, setDoc, onSnapshot }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+function iniciarSincronizacao(){
+
+const ref = doc(db,"sistema","estado");
+
+onSnapshot(ref,(snapshot)=>{
+
+if(snapshot.exists()){
+
+S = snapshot.data();
+
+render();
+
+}
+
+});
+
+}
+
 const firebaseConfig = {
   apiKey: "AIzaSyBqzCaIia2H_7v23A-QGmAL-S_mslZyeLg",
   authDomain: "sistema-empresa-b74b1.firebaseapp.com",
@@ -858,6 +879,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 import { signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
@@ -898,6 +920,17 @@ onAuthStateChanged(auth, (user) => {
 
 });
 
+window.salvarTeste = async function(){
+
+await addDoc(collection(db,"materiais"),{
+nome:"teste",
+estoque:100
+});
+
+alert("Salvo no banco");
+
+}
+
 </script>
 
 
@@ -919,16 +952,56 @@ const DEFAULT_STATE={
   ]
 };
 
-function loadState(){
-  try{const d=localStorage.getItem(LS_KEY);return d?JSON.parse(d):{...DEFAULT_STATE};}
-  catch(e){return{...DEFAULT_STATE};}
-}
-function saveState(){
-  try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){console.error('Erro ao salvar:',e);}
+async function saveState(){
+
+try{
+
+await setDoc(doc(db,"sistema","estado"),S);
+
+}catch(e){
+
+console.error("Erro ao salvar",e);
+
 }
 
-let S=loadState();
-// garantir campos novos em dados antigos
+}
+
+let S;
+
+async function iniciarSistema(){
+
+const ref = doc(db,"sistema","estado");
+
+const snapshot = await getDoc(ref);
+
+if(snapshot.exists()){
+
+S = snapshot.data();
+
+}else{
+
+S = DEFAULT_STATE;
+
+await setDoc(ref,S);
+
+}
+
+render();
+
+iniciarSincronizacao();
+
+}
+
+iniciarSistema();
+
+async function iniciarSistema(){
+
+S = await loadState();
+
+}
+
+iniciarSistema();
+
 if(!S.capDiaria)S.capDiaria=160;
 if(!S.toleranciaMin)S.toleranciaMin=30;
 if(!S.movimentacoes)S.movimentacoes=[];
