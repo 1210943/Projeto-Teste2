@@ -708,6 +708,42 @@ tr:hover td{background:var(--bg3)}
   </div>
 </div>
 
+
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBqzCaIia2H_7v23A-QGmAL-S_mslZyeLg",
+    authDomain: "sistema-empresa-b74b1.firebaseapp.com",
+    projectId: "sistema-empresa-b74b1",
+    storageBucket: "sistema-empresa-b74b1.firebasestorage.app",
+    messagingSenderId: "763544027635",
+    appId: "1:763544027635:web:c65f54d37f05d0034ad286"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById("sistema").style.display = "block";
+  } else {
+    window.location = "login.html";
+  }
+});
+</script>
+
+
+<input id="email" placeholder="Email">
+<input id="senha" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+
+
 <script>
 const LS_KEY='wms_pro_data';
 let _chegadaId=null,_alocarId=null;
@@ -2014,6 +2050,7 @@ function lancarEstoqueManual(){
 setInterval(saveState, 30000);
 
 render();
+
 </script>
 </body>
 </html>
