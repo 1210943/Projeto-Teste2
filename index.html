@@ -843,6 +843,16 @@ tr:hover td{background:var(--bg3)}
 
 <script type="module">
 
+const DEFAULT_STATE = {
+  baias: [],
+  depositos: [],
+  materiais: [],
+  movimentacoes: [],
+  fornecedores: [],
+  operadores: [],
+  descargas: []
+};
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 
 import { 
@@ -877,21 +887,25 @@ function iniciarFirebaseSync() {
 
   const ref = doc(db, "sistema", "estado");
 
-  onSnapshot(ref, (snapshot) => {
-    if (snapshot.exists()) {
 
-      const data = snapshot.data();
+onSnapshot(ref, (snapshot) => {
+  if (snapshot.exists()) {
 
-      // 🔥 proteção contra loop e render duplicado
-      if (JSON.stringify(S) !== JSON.stringify(data)) {
-        S = data;
-        render();
-      }
+    const data = snapshot.data();
 
+    if (JSON.stringify(S) !== JSON.stringify(data)) {
+      S = data;
+      render();
     }
-  });
 
-}
+  } else {
+
+    // 🔥 se não existe no Firebase, cria
+    S = DEFAULT_STATE;
+    saveState();
+
+  }
+});
 
 
 const firebaseConfig = {
@@ -999,7 +1013,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-let S;
+let S = JSON.parse(localStorage.getItem("wms_state")) || DEFAULT_STATE;
 
 async function iniciarSistema(){
 
